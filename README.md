@@ -4,6 +4,10 @@
 
 [![1.jpg](https://i.postimg.cc/MKc4wcHm/1.jpg)](https://postimg.cc/zVrpSGny)
 
+[![2.jpg](https://i.postimg.cc/XYdzZTwZ/2.jpg)](https://postimg.cc/gxcDQttd)
+
+[![3.jpg](https://i.postimg.cc/JhQYxZYM/3.jpg)](https://postimg.cc/5H6mNYMR)
+
 ## 🚀 Características
 
 - Gestión completa de **Edificios**, **Pisos** y **Áreas** (CRUD).
