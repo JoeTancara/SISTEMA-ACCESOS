@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h4 class="mb-0">Gestión de Pisos</h4>
+    </div>
+    <div class="card-body">
+        <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addPisoModal">
+            <i class="fas fa-plus"></i> Agregar Piso
+        </button>
+        
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Edificio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for piso in pisos %}
+                <tr>
+                    <td>{{ piso[0] }}</td>
+                    <td>{{ piso[1] }}</td>
+                    <td>{{ piso[3] }}</td>
+                    <td>
+                        <!-- el data targe cuando cree el modal -->
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editPisoModal{{ piso[0] }}" >
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <a href="{{ url_for('delete_piso', id=piso[0]) }}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                
+                <!-- Modal Editar Piso -->
+                <div class="modal fade" id="editPisoModal{{ piso[0] }}" tabindex="-1" role="dialog" aria-labelledby="editPisoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="editPisoModalLabel">Editar Piso</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="{{ url_for('edit_piso', id=piso[0]) }}" method="POST">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre del Piso:</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ piso[1] }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_edificio">Edificio:</label>
+                                        <select class="form-control" id="id_edificio" name="id_edificio" required>
+                                            {% for edificio in edificios %}
+                                            <option value="{{ edificio[0] }}" {% if edificio[0] == piso[2] %}selected{% endif %}>{{ edificio[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Agregar Piso -->
+<div class="modal fade" id="addPisoModal" tabindex="-1" role="dialog" aria-labelledby="addPisoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addPisoModalLabel">Agregar Nuevo Piso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ url_for('add_piso') }}" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Piso:</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_edificio">Edificio:</label>
+                        <select class="form-control" id="id_edificio" name="id_edificio" required>
+                            {% for edificio in edificios %}
+                            <option value="{{ edificio[0] }}">{{ edificio[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

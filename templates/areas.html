@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h4 class="mb-0">Gestión de Áreas</h4>
+    </div>
+    <div class="card-body">
+        <button class="btn btn-success mb-3" data-toggle="modal" data-target="#addAreaModal">
+            <i class="fas fa-plus"></i> Agregar Área
+        </button>
+        
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Edificio</th>
+                    <th>Piso</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for area in areas %}
+                <tr>
+                    <td>{{ area[0] }}</td>
+                    <td>{{ area[1] }}</td>
+                    <td>{{ area[4] }}</td>
+                    <td>{{ area[5] }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editAreaModal{{ area[0] }}">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <a href="{{ url_for('delete_area', id=area[0]) }}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                
+                <!-- Modal Editar Área -->
+                <div class="modal fade" id="editAreaModal{{ area[0] }}" tabindex="-1" role="dialog" aria-labelledby="editAreaModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="editAreaModalLabel">Editar Área</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="{{ url_for('edit_area', id=area[0]) }}" method="POST">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre del Área:</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ area[1] }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_edificio">Edificio:</label>
+                                        <select class="form-control edificio-select" name="id_edificio" required>
+                                            {% for edificio in edificios %}
+                                            <option value="{{ edificio[0] }}" {% if edificio[0] == area[3] %}selected{% endif %}>{{ edificio[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="id_piso">Piso:</label>
+                                        <select class="form-control piso-select" name="id_piso" required>
+                                            {% for piso in pisos %}
+                                            <option value="{{ piso[0] }}" {% if piso[0] == area[2] %}selected{% endif %}>{{ piso[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Agregar Área -->
+<div class="modal fade" id="addAreaModal" tabindex="-1" role="dialog" aria-labelledby="addAreaModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addAreaModalLabel">Agregar Nueva Área</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ url_for('add_area') }}" method="POST">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Área:</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_edificio">Edificio:</label>
+                        <select class="form-control edificio-select" name="id_edificio" require>
+                            <option value="">Seleccione un edificio</option>
+                            {% for edificio in edificios %}
+                            <option value="{{ edificio[0] }}">{{ edificio[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_piso">Piso:</label>
+                        <select class="form-control piso-select" name="id_piso" required>
+                            <option value="">Seleccione un piso</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+
+        $(document).on('change', '.edificio-select', function() {
+            var $form = $(this).closest('form');
+            var id_edificio = $(this).val();
+            var $pisoSelect = $form.find('.piso-select');
+            if(id_edificio) {
+                $.ajax({
+                    url: "{{ url_for('get_pisos', id_edificio='') }}" + id_edificio,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        $pisoSelect.empty();
+                        $pisoSelect.append('<option value="">Seleccione un piso</option>');
+                        $.each(data, function(key, value) {
+                            $pisoSelect.append('<option value="'+ value.id +'">'+ value.nombre +'</option>');
+                        });
+                    }
+                });
+            } else {
+                $pisoSelect.empty();
+                $pisoSelect.append('<option value="">Seleccione un piso</option>');
+            }
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
